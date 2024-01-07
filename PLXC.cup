@@ -115,6 +115,7 @@ listaChar	::=	IDENT:i                             	{: RESULT = new AST("charIden
 			|  IDENT:i COMA listaChar:l					{: RESULT = new AST("charIdent", l, new AST(i, null, null)); :}
 			|  IDENT:i ASIG exp:e 						{: RESULT = new AST("asigChar", null, new AST(i,e,null)); :}
 			|  IDENT:i ASIG exp:e COMA listaChar:l		{: RESULT = new AST("asigChar", l, new AST(i,e,null)); :}
+			|  IDENT:i AC NUM:n CC						{: RESULT = new AST("arrayChar", new AST(i, null, null), new AST(n,null,null)); :}
 			;
 
 listaReales	::=	IDENT:i                             	{: RESULT = new AST("floatIdent", null, new AST(i, null, null)); :}

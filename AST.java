@@ -128,7 +128,6 @@ public class AST {
 				}
 				PLXC.out.println("\t" + "$" + aux + "_length = " + tam + ";");
 				break;	
-
 			case "ascii":
 				res += izq.raiz;
 				if(!(res.charAt(0) == '\\' && res.charAt(1)=='u')){ //ASCII
