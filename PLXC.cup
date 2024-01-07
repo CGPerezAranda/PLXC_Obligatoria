@@ -24,7 +24,7 @@ terminal MENOSUNARIO;
 
 /* NOT TERMINALES */
 non terminal ini;
-non terminal AST listaSent, sent, exp, cond, elseSent, expFor, listaEnteros, listaChar, listaReales;
+non terminal AST listaSent, sent, exp, cond, elseSent, expFor, listaEnteros, listaChar, listaReales , arrayIni;
 
 /* PRECEDENCIAS */
 precedence right ASIG;
@@ -88,8 +88,9 @@ exp			::=	NUM:n									{: RESULT = new AST("num", new AST(n, null, null), null 
 			|	IDENT:i AC exp:e CC						{: RESULT = new AST("arrayPos", new AST(i, null, null), e); :}
 			|   IDENT:i AC NUM:n CC ASIG exp:e			{: RESULT = new AST("arrayAsig", new AST(i, new AST(n, null, null), null), e); :}
 			|	IDENT:i AC exp:e1 CC ASIG exp:e2		{: RESULT = new AST("arrayAsig", new AST(i, e1, null), e2); :}
+			|	IDENT:i ASIG ALL arrayIni:a CLL			{: RESULT = new AST("iniArray", new AST(i, null, null), a); :}
 			|	IDENT:i									{: RESULT = new AST("ident", new AST(i, null, null), null); :}
-			|	AP exp:e CP								{: RESULT = e; :}											
+			|	AP exp:e CP								{: RESULT = e; :}										
 			;
 
 cond		::=		exp:e1 IGUAL exp:e2					{: RESULT = new AST("igual", e1, e2); :}
@@ -123,6 +124,9 @@ listaReales	::=	IDENT:i                             	{: RESULT = new AST("floatI
 			|  IDENT:i AC NUM:n CC						{: RESULT = new AST("arrayFloat", new AST(i, null, null), new AST(n,null,null)); :}
 			;
 
+arrayIni 	::= exp:e COMA arrayIni:a					{: RESULT = new AST("arrayIni", e, a); :}
+			| 	exp:e									{: RESULT = new AST("arrayIni", e, null); :}
+			;
 
 /*
 if ( 1 == 1 ) print(2);

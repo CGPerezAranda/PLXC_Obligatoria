@@ -21,6 +21,7 @@ public class AST {
 		String et = "";
 		String s = "";
 		TablaSimbolos.Tipo tipo;
+
 		switch(raiz) {
 			case "ini":
 				izq.gc();
@@ -301,7 +302,23 @@ public class AST {
 				TablaSimbolos.insertar("$" + temp, tipo);
 				res += "$" + temp;
 				break;
-
+			case "iniArray":
+				left = izq.raiz; //identificador
+				temp = Generador.getVarArray();
+				der.gc();
+				aux = Generador.getVarArray();
+				for (int i = 0; i < Generador.getCurrentIndex(); i++){
+					PLXC.out.println("\t" + "$" + aux + " = " + "$" + temp + "[" + i + "];");
+					PLXC.out.println("\t" + left + "[" + i + "] = $" + aux + ";");
+				}
+				Generador.resetIndex();
+				break;
+			case "arrayIni":
+				temp = Generador.getCurrentVarArray();
+				left = izq.gc(); //valor a asignar	
+				PLXC.out.println("\t" + "$" + temp + "[" + Generador.getindex() + "]" + " = " + left + ";");
+				if(der != null) der.gc();						
+				break;
 			case "div":
 				right = der.gc();
 				left = izq.gc();
