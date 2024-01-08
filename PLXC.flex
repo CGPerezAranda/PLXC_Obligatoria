@@ -48,7 +48,8 @@ import java_cup.runtime.*;
     ","                 { return new Symbol(sym.COMA); }
     "(char)"            { return new Symbol(sym.CASTCHAR); }
     "(int)"             { return new Symbol(sym.CASTINT); }
-    "(float)"           { return new Symbol(sym.CASTFLOAT); }	
+    "(float)"           { return new Symbol(sym.CASTFLOAT); }
+    ".length"           { return new Symbol(sym.LENGTH); }	
 
     [A-Za-z][A-Za-z0-9_]* { return new Symbol(sym.IDENT, new String( yytext() )); }    
     0|[1-9][0-9]*      { return new Symbol(sym.NUM, new String(yytext()) ); }

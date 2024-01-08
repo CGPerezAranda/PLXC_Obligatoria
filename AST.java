@@ -95,6 +95,15 @@ public class AST {
 				res = "$" + v;
 				TablaSimbolos.insertar(res, TablaSimbolos.Tipo.FLOAT);							
 				break;
+			case "length":
+				aux = izq.raiz;
+				if(TablaSimbolos.tipo(aux) == TablaSimbolos.Tipo.ARRAY_CHAR 
+					|| TablaSimbolos.tipo(aux) == TablaSimbolos.Tipo.ARRAY_INT 
+					|| TablaSimbolos.tipo(aux) == TablaSimbolos.Tipo.ARRAY_FLOAT){
+					res = "$" + aux + "_length";
+					TablaSimbolos.insertar(res, TablaSimbolos.Tipo.INT);
+				}
+				break;
 			case "arrayInt":
 				aux = izq.raiz;
 				Integer tam = Integer.parseInt(der.raiz);				
@@ -266,26 +275,35 @@ public class AST {
 				}				
 				break;
 			case "arrayAsig":
-				left = izq.raiz; //identificador
-				right = der.gc(); //valor
-				aux = izq.izq.raiz; //indice
+				left = izq.gc(); //identificador
+				if(left.equals("")){
+					left = izq.raiz;
+				}			
+				aux = izq.izq.gc(); //indice
+				if(aux.equals("")){
+					aux = izq.izq.raiz;
+				}
 				tipo = TablaSimbolos.tipo(left);
+				v = Generador.nuevaEtiqueta();
+				f = Generador.nuevaEtiqueta();
+				PLXC.out.println("\tif (" + aux + " < 0) goto " + v + ";");
+				PLXC.out.println("\tif ("+ TablaSimbolos.getTamanio(left) + " < " + aux + ") goto " + v + ";");
+				PLXC.out.println("\tif ("+ TablaSimbolos.getTamanio(left) + " == " + aux + ") goto " + v + ";");
+				PLXC.out.println("\tgoto " + f + ";");
+				PLXC.out.println(v + ":");
+				PLXC.out.println("\terror;\n\thalt;");
+				PLXC.out.println(f + ":");
+				right = der.gc(); //valor
 				if(comprobarTipoArray(tipo, right)){
-					v = Generador.nuevaEtiqueta();
-					f = Generador.nuevaEtiqueta();
-					PLXC.out.println("\tif (" + aux + " < 0) goto " + v + ";");
-					PLXC.out.println("\tif ("+ TablaSimbolos.getTamanio(left) + " < " + aux + ") goto " + v + ";");
-					PLXC.out.println("\tif ("+ TablaSimbolos.getTamanio(left) + " == " + aux + ") goto " + v + ";");
-					PLXC.out.println("\tgoto " + f + ";");
-					PLXC.out.println(v + ":");
-					PLXC.out.println("\terror;\n\thalt;");
-					PLXC.out.println(f + ":");
 					PLXC.out.println("\t" + left + "[" + aux + "] = " + right + ";");
 				}
 				break;
 			case "arrayPos":
-				left = izq.raiz; //identificador
-				right = der.raiz; //indice
+				left = izq.raiz; //identificador");
+				right = der.gc(); //indice
+				if (right.equals("")){
+					right = der.raiz;
+				}
 				temp = Generador.nuevaVariable();
 				v = Generador.nuevaEtiqueta();
 				f = Generador.nuevaEtiqueta();
@@ -317,6 +335,10 @@ public class AST {
 				left = izq.gc(); //valor a asignar	
 				PLXC.out.println("\t" + "$" + temp + "[" + Generador.getindex() + "]" + " = " + left + ";");
 				if(der != null) der.gc();						
+				break;
+			case "iniAsigArrayCh":
+				izq.gc();
+				der.gc();
 				break;
 			case "div":
 				right = der.gc();
@@ -596,6 +618,8 @@ public class AST {
 			result = true;
 		}else if(tipo == TablaSimbolos.Tipo.ARRAY_CHAR && TablaSimbolos.tipo(right) == TablaSimbolos.Tipo.CHAR){
 			result = true;
+		}else if(tipo == TablaSimbolos.Tipo.ARRAY_CHAR && TablaSimbolos.tipo(right) == TablaSimbolos.Tipo.INT){
+			result = true;
 		}else if(tipo == TablaSimbolos.Tipo.ARRAY_FLOAT && TablaSimbolos.tipo(right) == TablaSimbolos.Tipo.FLOAT){
 			result = true;
 		}else{
@@ -607,15 +631,21 @@ public class AST {
 	private boolean comprobarCasteo(String left, String raiz, String derecha) {
 		boolean result = false;
 		if(raiz.equals("castChar")){
-			if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.CHAR){
+			if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.CHAR || TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.INT){
+				result = true;
+			}else if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.ARRAY_CHAR || TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.ARRAY_INT){
 				result = true;
 			}
 		}else if(raiz.equals("castInt")){
 			if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.INT){
 				result = true;
+			}else if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.ARRAY_INT){
+				result = true;
 			}
 		}else if(raiz.equals("castFloat")){
 			if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.FLOAT){
+				result = true;
+			}else if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.ARRAY_FLOAT){
 				result = true;
 			}
 		}else if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.FLOAT && TablaSimbolos.tipo(derecha) == TablaSimbolos.Tipo.INT){

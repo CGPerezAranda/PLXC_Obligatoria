@@ -15,7 +15,7 @@ parser code {:
 
 
 /* TERMINALES */
-terminal IF, AP, CP, AC, CC, ELSE, WHILE, DO, FOR, PYC, PRINT, DIF, IGUAL;
+terminal IF, AP, CP, AC, CC, ELSE, WHILE, DO, FOR, PYC, PRINT, DIF, IGUAL, LENGTH;
 terminal MAS, MENOS, DIV, POR, ASIG, MAYOR, MENOR, MENORIGUAL;
 terminal MAYORIGUAL, NOT, ALL, CLL, AND, OR, COMA, CASTCHAR, CASTINT, CASTFLOAT;
 terminal INT, CHAR, FLOAT;
@@ -90,7 +90,8 @@ exp			::=	NUM:n									{: RESULT = new AST("num", new AST(n, null, null), null 
 			|	IDENT:i AC exp:e1 CC ASIG exp:e2		{: RESULT = new AST("arrayAsig", new AST(i, e1, null), e2); :}
 			|	IDENT:i ASIG ALL arrayIni:a CLL			{: RESULT = new AST("iniArray", new AST(i, null, null), a); :}
 			|	IDENT:i									{: RESULT = new AST("ident", new AST(i, null, null), null); :}
-			|	AP exp:e CP								{: RESULT = e; :}										
+			|	AP exp:e CP								{: RESULT = e; :}	
+			|   IDENT:i LENGTH								{: RESULT = new AST("length", new AST(i, null, null), null); :}									
 			;
 
 cond		::=		exp:e1 IGUAL exp:e2					{: RESULT = new AST("igual", e1, e2); :}
@@ -116,6 +117,8 @@ listaChar	::=	IDENT:i                             	{: RESULT = new AST("charIden
 			|  IDENT:i ASIG exp:e 						{: RESULT = new AST("asigChar", null, new AST(i,e,null)); :}
 			|  IDENT:i ASIG exp:e COMA listaChar:l		{: RESULT = new AST("asigChar", l, new AST(i,e,null)); :}
 			|  IDENT:i AC NUM:n CC						{: RESULT = new AST("arrayChar", new AST(i, null, null), new AST(n,null,null)); :}
+			|  IDENT:i AC NUM:n CC ASIG ALL arrayIni:a CLL	{: RESULT = new AST("iniAsigArrayCh",new AST("iniArray", new AST(i, null, null),a), 
+																			new AST("arrayChar", new AST(i, null, null), new AST(n,null,null))); :}
 			;
 
 listaReales	::=	IDENT:i                             	{: RESULT = new AST("floatIdent", null, new AST(i, null, null)); :}
