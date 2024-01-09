@@ -24,7 +24,7 @@ terminal MENOSUNARIO;
 
 /* NOT TERMINALES */
 non terminal ini;
-non terminal AST listaSent, sent, exp, cond, elseSent, expFor, listaEnteros, listaChar, listaReales , arrayIni;
+non terminal AST listaSent, sent, exp, cond, elseSent, expFor, listaEnteros, listaChar, listaReales , arrayIni, pArrayIni;
 
 /* PRECEDENCIAS */
 precedence right ASIG;
@@ -50,6 +50,7 @@ listaSent	::=	listaSent:e1 sent:e2				{: RESULT = new AST("sent", e1, e2); :}
 			;
 
 sent		::=		PRINT AP exp:e CP PYC			{: RESULT = new AST("print", e, null); :}
+			|	PRINT AP ALL pArrayIni:a CLL CP PYC	{: RESULT = new AST("printArray", a ,null); :}
 			|	exp:e PYC							{: RESULT = e; :}
 			|	ALL listaSent:e CLL					{: RESULT = e; :}
 			|	IF AP cond:c CP elseSent:e			{: RESULT = new AST("if", c, e); :}
@@ -91,7 +92,7 @@ exp			::=	NUM:n									{: RESULT = new AST("num", new AST(n, null, null), null 
 			|	IDENT:i ASIG ALL arrayIni:a CLL			{: RESULT = new AST("iniArray", new AST(i, null, null), a); :}
 			|	IDENT:i									{: RESULT = new AST("ident", new AST(i, null, null), null); :}
 			|	AP exp:e CP								{: RESULT = e; :}	
-			|   IDENT:i LENGTH								{: RESULT = new AST("length", new AST(i, null, null), null); :}									
+			|   IDENT:i LENGTH							{: RESULT = new AST("length", new AST(i, null, null), null); :}
 			;
 
 cond		::=		exp:e1 IGUAL exp:e2					{: RESULT = new AST("igual", e1, e2); :}
@@ -132,17 +133,11 @@ arrayIni 	::= exp:e COMA arrayIni:a					{: RESULT = new AST("arrayIni", e, a); :
 			| 	exp:e									{: RESULT = new AST("arrayIni", e, null); :}
 			;
 
-/*
-if ( 1 == 1 ) print(2);
------->
-   if (1 == 1) goto L0;
-   goto L1;
-L0:
-   print 2;
-   goto L2;
-L1:
-L2:
-*/
+pArrayIni	::= exp:e COMA pArrayIni:a					{: RESULT = new AST("pArrayIni", e, a); :}
+			| 	exp:e									{: RESULT = new AST("pArrayIni", e, null); :}
+			;
+
+
 
 
 

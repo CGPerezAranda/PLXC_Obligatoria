@@ -55,6 +55,9 @@ public class TablaSimbolos {
 			System.out.println(key + " = " + arraySizes.get(key));
 		}
 	}
+	public static boolean esArray(String ident) {
+		return arraySizes.containsKey(ident);
+	}
 	
 }
 

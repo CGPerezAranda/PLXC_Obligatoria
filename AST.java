@@ -34,33 +34,55 @@ public class AST {
 				break;
 			case "print":
 				left = izq.gc();
-				if(!TablaSimbolos.estaIdent(left)){
-					Errores.noDeclarada(left);
-				}else{
-					if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.CHAR || izq.raiz.equals("castChar")){
-						PLXC.out.println("\tprintc " + left + ";");
-					}else{
-						PLXC.out.println("\tprint " + left + ";");
-					}			
+				aux = "print";
+				if (TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.ARRAY_CHAR || izq.raiz.equals("castChar")){
+					aux += "c";
 				}
-				/* if (izq.raiz.equals("ident")){
-					if(TablaSimbolos.estaIdent(izq.izq.raiz)){
-						aux = izq.gc();
-						if(TablaSimbolos.tipo(izq.izq.raiz) == TablaSimbolos.Tipo.CHAR){
-							PLXC.out.println("\tprintc " + aux + ";");
-						}else{						
-							PLXC.out.println("\tprint " + aux + ";");
-						}
-					} else {
-						Errores.noDeclarada(aux);
+				if(TablaSimbolos.esArray(left)){
+					temp = Generador.nuevaVariable();	
+					for (int i = 0; i < TablaSimbolos.getTamanio(left); i++){
+						PLXC.out.println("\t" + "$" + temp + " = " + left + "[" + i + "];");
+						PLXC.out.println("\t"+ aux + " $" + temp + ";");
 					}
-				}else if (izq.raiz.equals("ascii")){
-					aux = izq.gc();
-					PLXC.out.println("\tprintc " + aux + ";");
 				}else{
-					aux = izq.gc();
-					PLXC.out.println("\tprint " + aux + ";");
-				} */
+					if(!TablaSimbolos.estaIdent(left)){
+						Errores.noDeclarada(left);
+					}else{
+						if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.CHAR || izq.raiz.equals("castChar")){
+							PLXC.out.println("\tprintc " + left + ";");
+						}else{
+							PLXC.out.println("\tprint " + left + ";");
+						}			
+					}
+				}
+				break;
+			case "printArray":
+				temp = Generador.nuevaVariable();
+				left = izq.gc();
+				tipo = TablaSimbolos.tipo(left);
+				String temp2 = "$" + Generador.nuevaVariable();
+				TablaSimbolos.insertar(temp2, tipo);
+				int index = Generador.getCurrentIndex();
+				for (int i = 0; i < index; i++){
+					PLXC.out.println("\t" + temp2 + " = " + temp + "[" + i + "];");
+					if(tipo == TablaSimbolos.Tipo.CHAR){
+						PLXC.out.println("\tprintc " + temp2 + ";");
+					}else{
+						PLXC.out.println("\tprint " + temp2 + ";");
+					}
+				}
+				Generador.resetIndex();
+				break;
+			case "pArrayIni":
+				temp = "$" + Generador.getVariable();
+				left = izq.gc(); //valor a asignar
+				aux = Generador.getindex(); //indice actual
+				PLXC.out.println("\t" + temp + "[" + aux + "] = " + left + ";");
+				TablaSimbolos.insertar(temp, TablaSimbolos.tipo(left));
+				if (der != null) {
+					der.gc(); //siguiente valor
+				}
+				res = temp;
 				break;
 			case "num":
 				res += izq.raiz;
