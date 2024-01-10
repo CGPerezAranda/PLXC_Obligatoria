@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.HashSet;
 
 
 public class TablaSimbolos {
@@ -58,6 +59,7 @@ public class TablaSimbolos {
 	public static boolean esArray(String ident) {
 		return arraySizes.containsKey(ident);
 	}
+
 	
 }
 

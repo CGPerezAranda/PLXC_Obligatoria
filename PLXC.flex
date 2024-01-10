@@ -12,9 +12,8 @@ import java_cup.runtime.*;
 /* Expresiones y reglas */
 
 <YYINITIAL>{
-	\'              {yybegin(CARACTERES); } 
-   
-   
+	\'                  {yybegin(CARACTERES); } 
+    \"(\\.|[^\"])*\"    { return new Symbol(sym.CADENA, new String(yytext().substring(1,yytext().length()-1 ))); }
     "+"                 { return new Symbol(sym.MAS); }
     "-"		            { return new Symbol(sym.MENOS); }
     "*"                 { return new Symbol(sym.POR); }
@@ -45,6 +44,7 @@ import java_cup.runtime.*;
     "int"               { return new Symbol(sym.INT); }
     "char"              { return new Symbol(sym.CHAR); }
     "float"             { return new Symbol(sym.FLOAT); }
+    "string"            { return new Symbol(sym.STRING); }
     ","                 { return new Symbol(sym.COMA); }
     "(char)"            { return new Symbol(sym.CASTCHAR); }
     "(int)"             { return new Symbol(sym.CASTINT); }

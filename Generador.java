@@ -8,7 +8,7 @@ public class Generador {
         return "t" + Integer.toString(t++);
     }
 
-    public static String getVariable() {
+    public static String getCurrentVariable() {
         int aux = t-1;
         return "t" + Integer.toString(aux);
     }

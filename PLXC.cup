@@ -18,8 +18,8 @@ parser code {:
 terminal IF, AP, CP, AC, CC, ELSE, WHILE, DO, FOR, PYC, PRINT, DIF, IGUAL, LENGTH;
 terminal MAS, MENOS, DIV, POR, ASIG, MAYOR, MENOR, MENORIGUAL;
 terminal MAYORIGUAL, NOT, ALL, CLL, AND, OR, COMA, CASTCHAR, CASTINT, CASTFLOAT;
-terminal INT, CHAR, FLOAT;
-terminal String IDENT, NUM, REAL, ASCII;
+terminal INT, CHAR, FLOAT, STRING;
+terminal String IDENT, NUM, REAL, ASCII, CADENA;
 terminal MENOSUNARIO;
 
 /* NOT TERMINALES */
@@ -93,6 +93,7 @@ exp			::=	NUM:n									{: RESULT = new AST("num", new AST(n, null, null), null 
 			|	IDENT:i									{: RESULT = new AST("ident", new AST(i, null, null), null); :}
 			|	AP exp:e CP								{: RESULT = e; :}	
 			|   IDENT:i LENGTH							{: RESULT = new AST("length", new AST(i, null, null), null); :}
+			|   CADENA:c								{: RESULT = new AST("cadena", new AST(c, null, null), null); :}
 			;
 
 cond		::=		exp:e1 IGUAL exp:e2					{: RESULT = new AST("igual", e1, e2); :}

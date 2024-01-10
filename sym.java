@@ -19,7 +19,7 @@ public class sym {
   public static final int CASTCHAR = 31;
   public static final int OR = 29;
   public static final int DIV = 18;
-  public static final int NUM = 38;
+  public static final int NUM = 39;
   public static final int CC = 6;
   public static final int IF = 2;
   public static final int MAYORIGUAL = 24;
@@ -27,20 +27,22 @@ public class sym {
   public static final int ASIG = 20;
   public static final int error = 1;
   public static final int COMA = 30;
+  public static final int CADENA = 42;
   public static final int DIF = 13;
   public static final int MENOS = 17;
   public static final int MENOR = 22;
-  public static final int IDENT = 37;
-  public static final int MENOSUNARIO = 41;
+  public static final int IDENT = 38;
+  public static final int MENOSUNARIO = 43;
   public static final int CLL = 27;
-  public static final int REAL = 39;
+  public static final int REAL = 40;
   public static final int MAYOR = 21;
   public static final int CASTINT = 32;
   public static final int ELSE = 7;
   public static final int WHILE = 8;
   public static final int FLOAT = 36;
+  public static final int STRING = 37;
   public static final int ALL = 26;
-  public static final int ASCII = 40;
+  public static final int ASCII = 41;
   public static final int AP = 3;
   public static final int PRINT = 12;
   public static final int LENGTH = 15;
@@ -86,10 +88,12 @@ public class sym {
   "INT",
   "CHAR",
   "FLOAT",
+  "STRING",
   "IDENT",
   "NUM",
   "REAL",
   "ASCII",
+  "CADENA",
   "MENOSUNARIO"
   };
 }

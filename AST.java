@@ -34,25 +34,48 @@ public class AST {
 				break;
 			case "print":
 				left = izq.gc();
-				aux = "print";
-				if (TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.ARRAY_CHAR || izq.raiz.equals("castChar")){
-					aux += "c";
-				}
-				if(TablaSimbolos.esArray(left)){
-					temp = Generador.nuevaVariable();	
-					for (int i = 0; i < TablaSimbolos.getTamanio(left); i++){
-						PLXC.out.println("\t" + "$" + temp + " = " + left + "[" + i + "];");
-						PLXC.out.println("\t"+ aux + " $" + temp + ";");
-					}
+				
+				if (izq.raiz.equals("cadena")){
+					temp = "$" + Generador.getCurrentVariable(); //$t0 (array de Char	)
+					String v1 = "$" + Generador.nuevaVariable(); //$t1
+					String v2 = "$" + Generador.nuevaVariable(); //$t2
+					et = Generador.nuevaEtiqueta(); //L0
+					String et1, et2;
+					et1 = Generador.nuevaEtiqueta(); //L1
+					et2 = Generador.nuevaEtiqueta(); //L2
+					PLXC.out.println("\t" + temp + "_length = " + TablaSimbolos.getTamanio(temp) + ";");
+					PLXC.out.println("\t" + v1 + " = 0;");
+					PLXC.out.println(et + ":");
+					PLXC.out.println("\tif (" + v1 + " < " + temp + "_length) goto " + et1 + ";");
+					PLXC.out.println("\tgoto " + et2 + ";");
+					PLXC.out.println(et1 + ":");
+					PLXC.out.println("\t" + v2 + " = " + temp + "[" + v1 + "];");
+					PLXC.out.println("\twritec " + v2 + ";");
+					PLXC.out.println("\t" + v1 + " = " + v1 + " + 1;");
+					PLXC.out.println("\tgoto " + et + ";");
+					PLXC.out.println(et2 + ":");
+					PLXC.out.println("\twritec 10;");
 				}else{
-					if(!TablaSimbolos.estaIdent(left)){
-						Errores.noDeclarada(left);
+					aux = "print";
+					if (TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.ARRAY_CHAR || izq.raiz.equals("castChar")){
+						aux += "c";
+					}
+					if(TablaSimbolos.esArray(left)){
+						temp = Generador.nuevaVariable();	
+						for (int i = 0; i < TablaSimbolos.getTamanio(left); i++){
+							PLXC.out.println("\t" + "$" + temp + " = " + left + "[" + i + "];");
+							PLXC.out.println("\t"+ aux + " $" + temp + ";");
+						}
 					}else{
-						if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.CHAR || izq.raiz.equals("castChar")){
-							PLXC.out.println("\tprintc " + left + ";");
+						if(!TablaSimbolos.estaIdent(left)){
+							Errores.noDeclarada(left);
 						}else{
-							PLXC.out.println("\tprint " + left + ";");
-						}			
+							if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.CHAR || izq.raiz.equals("castChar")){
+								PLXC.out.println("\tprintc " + left + ";");
+							}else{
+								PLXC.out.println("\tprint " + left + ";");
+							}			
+						}
 					}
 				}
 				break;
@@ -74,7 +97,7 @@ public class AST {
 				Generador.resetIndex();
 				break;
 			case "pArrayIni":
-				temp = "$" + Generador.getVariable();
+				temp = "$" + Generador.getCurrentVariable();
 				left = izq.gc(); //valor a asignar
 				aux = Generador.getindex(); //indice actual
 				PLXC.out.println("\t" + temp + "[" + aux + "] = " + left + ";");
@@ -84,6 +107,18 @@ public class AST {
 				}
 				res = temp;
 				break;
+			case "cadena":
+				left = izq.raiz;
+				temp = "$" + Generador.nuevaVariable();
+				TablaSimbolos.insertar(temp, TablaSimbolos.Tipo.STRING);
+				left = limpiaCadena(left);
+				for (int i = 0; i < left.length(); i++){
+					aux = String.valueOf((int) left.charAt(i));
+					PLXC.out.println("\t" + temp + "[" + i + "] = " + aux + ";");
+					TablaSimbolos.declararTamanio(temp, i+1);					
+				}
+				break;
+
 			case "num":
 				res += izq.raiz;
 				if(!TablaSimbolos.estaIdent(res)){
@@ -595,8 +630,25 @@ public class AST {
 		return res;
 	}
 
+	private String limpiaCadena(String cadena) {
+		StringBuilder res = new StringBuilder();
+		
+		for (int i = 0; i < cadena.length(); i++) {
+			System.out.println("res antes: " + res.toString());
+			if (i > 1 && (res.charAt(res.length() - 1) == '\\' && isSpecialCharacter(cadena.charAt(i)))) {
+				res.deleteCharAt(res.length() - 1);
+				res.append(cadena.charAt(i));
+			} else {
+				res.append(cadena.charAt(i));
+			}
+			System.out.println("res después: " + res.toString());
+		}
+		return res.toString();
+	}
 
-
+	private boolean isSpecialCharacter(char c) {
+		return c == '\\' || c == '\"' || c == '\'';
+	}
 	private TablaSimbolos.Tipo resuelveTipo (TablaSimbolos.Tipo tipo){
 		TablaSimbolos.Tipo result = TablaSimbolos.Tipo.INT;
 		switch (tipo) {
@@ -611,7 +663,6 @@ public class AST {
 		}
 		return result;
 	}
-
 	private TablaSimbolos.Tipo resuelveTipo(String right, String left) {
 		TablaSimbolos.Tipo tipo = TablaSimbolos.Tipo.INT;
 		if(TablaSimbolos.tipo(left) == TablaSimbolos.tipo(right)){
