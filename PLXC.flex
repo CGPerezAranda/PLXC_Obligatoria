@@ -1,4 +1,3 @@
-
 import java_cup.runtime.*;
 %%
 %xstate CARACTERES
