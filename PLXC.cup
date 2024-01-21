@@ -24,7 +24,7 @@ terminal MENOSUNARIO;
 
 /* NOT TERMINALES */
 non terminal ini;
-non terminal AST listaSent, sent, exp, cond, elseSent, expFor, listaEnteros, listaChar, listaReales , arrayIni, pArrayIni;
+non terminal AST listaSent, sent, exp, cond, elseSent, expFor, listaEnteros, listaChar, listaReales , arrayIni, pArrayIni, expString;
 
 /* PRECEDENCIAS */
 precedence right ASIG;
@@ -76,6 +76,7 @@ exp			::=	NUM:n									{: RESULT = new AST("num", new AST(n, null, null), null 
 			|	INT listaEnteros:l						{: RESULT = new AST("int", l, null); :}
 			|	CHAR listaChar:l 						{: RESULT = new AST("char", l, null); :}
 			|   FLOAT listaReales:l						{: RESULT = new AST("float", l, null); :}
+			|   STRING expString:e						{: RESULT = new AST("string", e, null); :}
 			|   CASTCHAR exp:e 							{: RESULT = new AST("castChar", e, null); :}
 			|   CASTINT exp:e 							{: RESULT = new AST("castInt", e, null); :}
 			|   CASTFLOAT exp:e 						{: RESULT = new AST("castFloat", e, null); :}
@@ -93,7 +94,7 @@ exp			::=	NUM:n									{: RESULT = new AST("num", new AST(n, null, null), null 
 			|	IDENT:i									{: RESULT = new AST("ident", new AST(i, null, null), null); :}
 			|	AP exp:e CP								{: RESULT = e; :}	
 			|   IDENT:i LENGTH							{: RESULT = new AST("length", new AST(i, null, null), null); :}
-			|   CADENA:c								{: RESULT = new AST("cadena", new AST(c, null, null), null); :}
+			|   CADENA:c								{: RESULT = new AST("cadena", null, new AST(c, null, null)); :}
 			;
 
 cond		::=		exp:e1 IGUAL exp:e2					{: RESULT = new AST("igual", e1, e2); :}
@@ -136,6 +137,9 @@ arrayIni 	::= exp:e COMA arrayIni:a					{: RESULT = new AST("arrayIni", e, a); :
 
 pArrayIni	::= exp:e COMA pArrayIni:a					{: RESULT = new AST("pArrayIni", e, a); :}
 			| 	exp:e									{: RESULT = new AST("pArrayIni", e, null); :}
+			;
+
+expString	::= IDENT:i ASIG exp:e						{: RESULT = new AST("asigString", new AST(i ,null ,null), e); :}
 			;
 
 

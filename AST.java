@@ -19,6 +19,8 @@ public class AST {
 		String temp = "";
 		String aux = "";
 		String et = "";
+		String et1 = "";
+		String et2 = "";
 		String s = "";
 		TablaSimbolos.Tipo tipo;
 
@@ -34,19 +36,24 @@ public class AST {
 				break;
 			case "print":
 				left = izq.gc();
-				
 				if (izq.raiz.equals("cadena")){
+					left = "$" + Generador.getCurrentVariable();					
+				}
+				if (TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.STRING){
 					temp = "$" + Generador.getCurrentVariable(); //$t0 (array de Char	)
+					String ltemp = temp; 
+					if(!izq.raiz.equals("cadena")){
+						temp = left;
+						ltemp = "$" + temp;
+					}
 					String v1 = "$" + Generador.nuevaVariable(); //$t1
 					String v2 = "$" + Generador.nuevaVariable(); //$t2
 					et = Generador.nuevaEtiqueta(); //L0
-					String et1, et2;
 					et1 = Generador.nuevaEtiqueta(); //L1
 					et2 = Generador.nuevaEtiqueta(); //L2
-					PLXC.out.println("\t" + temp + "_length = " + TablaSimbolos.getTamanio(temp) + ";");
 					PLXC.out.println("\t" + v1 + " = 0;");
 					PLXC.out.println(et + ":");
-					PLXC.out.println("\tif (" + v1 + " < " + temp + "_length) goto " + et1 + ";");
+					PLXC.out.println("\tif (" + v1 + " < " + ltemp + "_length) goto " + et1 + ";");
 					PLXC.out.println("\tgoto " + et2 + ";");
 					PLXC.out.println(et1 + ":");
 					PLXC.out.println("\t" + v2 + " = " + temp + "[" + v1 + "];");
@@ -108,15 +115,16 @@ public class AST {
 				res = temp;
 				break;
 			case "cadena":
-				left = izq.raiz;
+				right = der.raiz;
 				temp = "$" + Generador.nuevaVariable();
 				TablaSimbolos.insertar(temp, TablaSimbolos.Tipo.STRING);
-				left = limpiaCadena(left);
-				for (int i = 0; i < left.length(); i++){
-					aux = String.valueOf((int) left.charAt(i));
+				right = limpiaCadena(right);
+				for (int i = 0; i < right.length(); i++){
+					aux = String.valueOf((int) right.charAt(i));
 					PLXC.out.println("\t" + temp + "[" + i + "] = " + aux + ";");
 					TablaSimbolos.declararTamanio(temp, i+1);					
 				}
+				PLXC.out.println("\t" + temp + "_length = " + TablaSimbolos.getTamanio(temp) + ";");
 				break;
 
 			case "num":
@@ -516,12 +524,44 @@ public class AST {
 			case "float":
 				izq.gc();
 				break;	
+			case "string":
+				left = izq.gc();
+				TablaSimbolos.insertar(left, TablaSimbolos.Tipo.STRING);
+				break;
 			case "floatIdent":
 				TablaSimbolos.insertar(der.raiz, TablaSimbolos.Tipo.FLOAT);
 				if (izq != null){
 					izq.gc();
 				}
 				break;
+			case "asigString":
+				left = izq.raiz; //identificador (a)
+				String left_length = "$" + left + "_length";
+				TablaSimbolos.insertar(left, TablaSimbolos.Tipo.STRING);	
+				right = der.gc();
+				temp = "$" + Generador.getCurrentVariable(); //$t0
+				aux = "$" + Generador.nuevaVariable(); //$t1
+				String aux2 = "$" + Generador.nuevaVariable(); //$t2
+				PLXC.out.println("# Asignar array " + left + " <- " + temp);
+				PLXC.out.println("\t" + "$" + left + "_length = 0;");
+				PLXC.out.println("\t" + aux + " = 0;");
+				et = Generador.nuevaEtiqueta(); //L0
+				et1 = Generador.nuevaEtiqueta(); //L1
+				et2 = Generador.nuevaEtiqueta(); //L2
+				PLXC.out.println(et + ":");
+				PLXC.out.println("\tif (" + aux + " < " + temp + "_length) goto " + et1 + ";");
+				PLXC.out.println("\tgoto " + et2 + ";");
+				PLXC.out.println(et1 + ":");
+				PLXC.out.println("\t" + aux2 + " = " + temp + "["+aux+"];");
+				PLXC.out.println("\t" + left + "[" + left_length + "] = " + aux2 + ";");
+				PLXC.out.println("\t" + left_length + " = " + left_length + " + 1;");
+				PLXC.out.println("\t" + aux + " = " + aux + " + 1;");
+				PLXC.out.println("\tgoto " + et + ";");
+				PLXC.out.println(et2 + ":");
+				TablaSimbolos.sustituirKeyTamanio(left, temp);
+				res = left;
+				break;
+
 			case "asigChar":
 				right = der.raiz;
 				if (!TablaSimbolos.estaIdent(right)){
@@ -614,7 +654,7 @@ public class AST {
 				et = Generador.nuevaEtiqueta();
 				PLXC.out.println(et + ":");
 				izq.gc(); //expfor
-				String et2 = Generador.nuevaEtiqueta();
+				et2 = Generador.nuevaEtiqueta();
 				PLXC.out.println(et2 + ":");
 				if (der.der!=null) {
 					der.der.gc(); //aux.der
@@ -634,14 +674,12 @@ public class AST {
 		StringBuilder res = new StringBuilder();
 		
 		for (int i = 0; i < cadena.length(); i++) {
-			System.out.println("res antes: " + res.toString());
 			if (i > 1 && (res.charAt(res.length() - 1) == '\\' && isSpecialCharacter(cadena.charAt(i)))) {
 				res.deleteCharAt(res.length() - 1);
 				res.append(cadena.charAt(i));
 			} else {
 				res.append(cadena.charAt(i));
 			}
-			System.out.println("res después: " + res.toString());
 		}
 		return res.toString();
 	}

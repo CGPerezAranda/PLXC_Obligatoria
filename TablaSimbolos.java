@@ -46,6 +46,13 @@ public class TablaSimbolos {
 			arraySizes.put(ident, tam);
 		} 
 	}
+	public static void sustituirKeyTamanio(String newIdent, String oldIdent) {
+		if (estaIdent(oldIdent)) {
+			int tam = arraySizes.get(oldIdent);
+			arraySizes.remove(oldIdent);
+			arraySizes.put(newIdent, tam);
+		} 
+	}
 	public static int getTamanio(String ident) {
 		if (!estaIdent(ident)) Errores.noVar(ident);
 		return arraySizes.get(ident);
@@ -59,7 +66,6 @@ public class TablaSimbolos {
 	public static boolean esArray(String ident) {
 		return arraySizes.containsKey(ident);
 	}
-
 	
 }
 
