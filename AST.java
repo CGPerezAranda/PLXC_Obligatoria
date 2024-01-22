@@ -359,6 +359,13 @@ public class AST {
 				PLXC.out.println("\terror;\n\thalt;");
 				PLXC.out.println(f + ":");
 				right = der.gc(); //valor
+				if(TablaSimbolos.tipo(left) == TablaSimbolos.Tipo.ARRAY_FLOAT && TablaSimbolos.tipo(right) == TablaSimbolos.Tipo.INT){
+					right = "(float) " + right;
+					temp = Generador.nuevaVariable();
+					PLXC.out.println("\t$" + temp + " = " + right + ";");
+					right = "$" + temp;
+					TablaSimbolos.insertar(right, TablaSimbolos.Tipo.FLOAT);
+				}
 				if(comprobarTipoArray(tipo, right)){
 					PLXC.out.println("\t" + left + "[" + aux + "] = " + right + ";");
 				}
@@ -538,7 +545,7 @@ public class AST {
 				left = izq.raiz; //identificador (a)
 				String left_length = "$" + left + "_length";
 				TablaSimbolos.insertar(left, TablaSimbolos.Tipo.STRING);	
-				right = der.gc();
+				izq.izq.gc();
 				temp = "$" + Generador.getCurrentVariable(); //$t0
 				aux = "$" + Generador.nuevaVariable(); //$t1
 				String aux2 = "$" + Generador.nuevaVariable(); //$t2
@@ -560,6 +567,7 @@ public class AST {
 				PLXC.out.println(et2 + ":");
 				TablaSimbolos.sustituirKeyTamanio(left, temp);
 				res = left;
+				if (der != null) der.gc();
 				break;
 
 			case "asigChar":

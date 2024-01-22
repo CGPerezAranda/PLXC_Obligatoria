@@ -139,7 +139,8 @@ pArrayIni	::= exp:e COMA pArrayIni:a					{: RESULT = new AST("pArrayIni", e, a);
 			| 	exp:e									{: RESULT = new AST("pArrayIni", e, null); :}
 			;
 
-expString	::= IDENT:i ASIG exp:e						{: RESULT = new AST("asigString", new AST(i ,null ,null), e); :}
+expString	::= IDENT:i ASIG exp:e						{: RESULT = new AST("asigString", new AST(i ,e ,null), null); :}
+			|   IDENT:i ASIG exp:e COMA expString:e2	{: RESULT = new AST("asigString", new AST(i ,e ,null),  e2); :}
 			;
 
 
